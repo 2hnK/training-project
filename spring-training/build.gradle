@@ -42,7 +42,7 @@ gitProperties {
     // 생성 파일 경로: build/resources/main/git.properties
     // dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
     // dateFormatTimeZone = "Asia/Seoul"
-    
+
     // Git 정보에 포함할 추가 속성들
     keys = [
         'git.branch',
@@ -55,6 +55,8 @@ gitProperties {
         'git.tags',
         'git.dirty'
     ]
+    dotGitDirectory = file("../.git")
+    failOnNoGitDirectory = false
 }
 
 ext {

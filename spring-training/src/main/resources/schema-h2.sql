@@ -8,20 +8,34 @@ CREATE TABLE COURSES (
     updated_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE USERS (
-    user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+CREATE TABLE MEMBERS (
+    member_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    login_id VARCHAR(100) NOT NULL UNIQUE,
     nickname VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     password VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    verified BOOLEAN DEFAULT FALSE,
+    locked BOOLEAN DEFAULT FALSE,
+    account_credentials_expired BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE AUTHORITIES (
     authority_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
+    member_id BIGINT NOT NULL,
     authority VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_authorities_users FOREIGN KEY (username) REFERENCES USERS(username)
+    CONSTRAINT fk_authorities_members FOREIGN KEY (member_id) REFERENCES MEMBERS(member_id)
+);
+
+CREATE TABLE BOOKMARKS (
+    bookmark_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    course_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT fk_bookmarks_members FOREIGN KEY (member_id) REFERENCES MEMBERS(member_id),
+    CONSTRAINT fk_bookmarks_courses FOREIGN KEY (course_id) REFERENCES COURSES(id)
 );
 
 CREATE TABLE CHAPTERS (

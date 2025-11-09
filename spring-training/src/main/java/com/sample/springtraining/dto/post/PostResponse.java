@@ -2,6 +2,8 @@ package com.sample.springtraining.dto.post;
 
 import java.time.LocalDateTime;
 
+import com.sample.springtraining.entity.Member;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +17,7 @@ public class PostResponse {
     private Long id;
     private String title;
     private String content;
-    private String author;
+    private Member author;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

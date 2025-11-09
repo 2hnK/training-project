@@ -1,6 +1,6 @@
 package com.sample.springtraining.dto.course;
 
-import com.sample.springtraining.models.Course;
+import com.sample.springtraining.entity.Course;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

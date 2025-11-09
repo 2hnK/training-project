@@ -1,36 +1,23 @@
 package com.sample.springtraining.config;
 
-import javax.sql.DataSource;
-
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.sample.springtraining.handlers.CustomAccessDeniedHandler;
-import com.sample.springtraining.services.CustomUserDetailsService;
+import com.sample.springtraining.handler.CustomAccessDeniedHandler;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-        private CustomAccessDeniedHandler customAccessDeniedHandler;
-        private DataSource dataSource;
-
-        @Autowired
-        public SecurityConfig(CustomAccessDeniedHandler customAccessDeniedHandler, DataSource dataSource) {
-                this.customAccessDeniedHandler = customAccessDeniedHandler;
-                this.dataSource = dataSource;
-        }
+        private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,11 +43,6 @@ public class SecurityConfig {
                                                 .frameOptions(frame -> frame.sameOrigin()));
 
                 return http.build();
-        }
-
-        @Bean
-        public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-                return new CustomUserDetailsService();
         }
 
         @Bean
