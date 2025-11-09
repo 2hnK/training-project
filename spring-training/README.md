@@ -1,0 +1,2 @@
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI 문서(JSON): http://localhost:8080/v3/api-docs

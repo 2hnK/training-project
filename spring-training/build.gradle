@@ -1,0 +1,94 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.5.4"
+    id "io.spring.dependency-management" version "1.1.7"
+    id "com.gorylenko.gradle-git-properties" version "2.5.3"
+}
+
+group = "com.sample"
+version = "0.0.1-SNAPSHOT"
+description = "Spring Training API"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Build Info 자동 생성 (build-info.properties)
+springBoot {
+    buildInfo {
+        properties {
+            additional = [
+                'description': project.description ?: '',
+                'java.version': java.toolchain.languageVersion.get().toString()
+            ]
+        }
+    }
+}
+
+// Git 정보 자동 생성 (git.properties)
+gitProperties {
+    // 생성 파일 경로: build/resources/main/git.properties
+    // dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+    // dateFormatTimeZone = "Asia/Seoul"
+    
+    // Git 정보에 포함할 추가 속성들
+    keys = [
+        'git.branch',
+        'git.commit.id',
+        'git.commit.id.abbrev',
+        'git.commit.time',
+        'git.commit.message.short',
+        'git.commit.user.name',
+        'git.commit.user.email',
+        'git.tags',
+        'git.dirty'
+    ]
+}
+
+ext {
+    querydslVersion = "5.1.0"
+}
+
+dependencies {
+    // Core Spring Boot Dependencies
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:3.5.6"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
+    implementation "io.micrometer:micrometer-registry-prometheus:1.15.4"
+    implementation "org.springframework.boot:spring-boot-starter-security:3.5.6"
+
+    // Database Dependencies
+    implementation "com.h2database:h2"
+
+    // Development Dependencies
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13"
+
+    // Test Dependencies
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    systemProperty "spring.profiles.active", "test"
+}
