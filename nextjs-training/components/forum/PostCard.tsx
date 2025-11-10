@@ -1,9 +1,9 @@
 'use client';
 
 import { MessageSquare, Heart, Eye, TrendingUp } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Post } from '@/types/post';

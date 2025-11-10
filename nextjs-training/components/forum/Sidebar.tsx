@@ -1,8 +1,8 @@
 'use client';
 
 import { TrendingUp, Calendar, Tag } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import Link from 'next/link';
 
 export function Sidebar() {

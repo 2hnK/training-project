@@ -5,14 +5,7 @@ import { Header } from '@/components/forum/Header';
 import { PostCard } from '@/components/forum/PostCard';
 import { Sidebar } from '@/components/forum/Sidebar';
 import { CategoryTabs } from '@/components/forum/CategoryTabs';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { mockPosts } from '@/lib/mock-data';
