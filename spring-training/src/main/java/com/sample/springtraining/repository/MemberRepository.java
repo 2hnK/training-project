@@ -6,7 +6,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import com.sample.springtraining.entity.Member;
 import com.sample.springtraining.projection.NameOnly;
 
-public interface UserRepository extends JpaRepository<Member, Long>, QuerydslPredicateExecutor<Member> {
+public interface MemberRepository extends JpaRepository<Member, Long>, QuerydslPredicateExecutor<Member> {
 
     Iterable<NameOnly> findNameOnlyByEmail(String email);
 

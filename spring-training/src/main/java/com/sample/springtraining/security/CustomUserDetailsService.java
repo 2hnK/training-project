@@ -1,13 +1,12 @@
-package com.sample.springtraining.service;
+package com.sample.springtraining.security;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.sample.springtraining.entity.Member;
-import com.sample.springtraining.repository.UserRepository;
+import com.sample.springtraining.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,22 +14,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-        Member member = userRepository.findByLoginId(loginId);
+        Member member = memberRepository.findByLoginId(loginId);
 
         if (member == null) {
             throw new UsernameNotFoundException("Member with loginId " + loginId + " not found");
         }
-        return User.builder()
-                .username(member.getLoginId())
-                .password(member.getPassword())
-                .disabled(!member.isVerified())
-                .accountExpired(member.isAccountCredentialsExpired())
-                .accountLocked(member.isLocked())
-                .roles("USER")
-                .build();
+
+        return new CustomUserDetails(member);
     }
 }

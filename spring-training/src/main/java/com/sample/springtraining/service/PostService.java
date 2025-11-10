@@ -1,12 +1,20 @@
 package com.sample.springtraining.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sample.springtraining.dto.post.PostCreateRequest;
 import com.sample.springtraining.dto.post.PostResponse;
+import com.sample.springtraining.entity.Member;
 import com.sample.springtraining.entity.Post;
 import com.sample.springtraining.exception.ResourceNotFoundException;
 import com.sample.springtraining.repository.PostRepository;
+import com.sample.springtraining.security.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,23 +24,36 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
     private final PostRepository postRepository;
 
-    /**
-     * ID로 게시글 조회
-     * @param id 게시글 ID
-     * @return PostResponse DTO
-     * @throws ResourceNotFoundException 게시글을 찾을 수 없는 경우
-     */
     public PostResponse findById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        
+
         return mapToResponse(post);
     }
-    
-    /**
-     * Entity를 Response DTO로 변환
-     * Single Responsibility Principle 적용 - 변환 로직 분리
-     */
+
+    public Page<PostResponse> findAll() {
+        Pageable pageable = PageRequest.of(0, 10); // 기본값: 첫 페이지, 10개씩
+        Page<Post> posts = postRepository.findAll(pageable);
+        return posts.map(this::mapToResponse);
+    }
+
+    @Transactional
+    public PostResponse createPost(PostCreateRequest request) {
+        Member currentUser = getCurrentUser();
+
+        Post post = request.toEntity();
+        post.setAuthor(currentUser);
+
+        Post savedPost = postRepository.save(post);
+        return mapToResponse(savedPost);
+    }
+
+    private Member getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ((CustomUserDetails) auth.getPrincipal()).getMember();
+    }
+
+    // Post Entity를 Response DTO로 변환
     private PostResponse mapToResponse(Post post) {
         return PostResponse.builder()
                 .id(post.getId())

@@ -11,26 +11,26 @@ import org.springframework.util.StringUtils;
 
 import com.sample.springtraining.entity.Member;
 import com.sample.springtraining.projection.NameOnly;
-import com.sample.springtraining.repository.UserRepository;
+import com.sample.springtraining.repository.MemberRepository;
 
 import jakarta.persistence.EntityManager;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final EntityManager entityManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, EntityManager entityManager) {
-        this.userRepository = userRepository;
+    public UserService(MemberRepository memberRepository, EntityManager entityManager) {
+        this.memberRepository = memberRepository;
         this.entityManager = entityManager;
     }
 
     public List<Member> findAllUsers() {
         /* 모든 사용자 조회 */
 
-        Iterable<Member> iterable = userRepository.findAll(Sort.unsorted());
+        Iterable<Member> iterable = memberRepository.findAll(Sort.unsorted());
         List<Member> members = new ArrayList<>();
 
         for (Member member : iterable) {
@@ -68,7 +68,7 @@ public class UserService {
             throw new IllegalArgumentException("이메일을 입력해주세요");
         }
 
-        Iterable<NameOnly> iterable = userRepository.findNameOnlyByEmail(email.trim());
+        Iterable<NameOnly> iterable = memberRepository.findNameOnlyByEmail(email.trim());
         return StreamSupport.stream(iterable.spliterator(), false)
                 .toList();
     }
