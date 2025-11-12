@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/forum/Header';
 import { PostCard } from '@/components/forum/PostCard';
 import { Sidebar } from '@/components/forum/Sidebar';
@@ -11,16 +11,68 @@ import { motion } from 'framer-motion';
 import { mockPosts } from '@/lib/mock-data';
 import Link from 'next/link';
 import { Category, SortBy } from '@/types/post';
+import { getPosts, Post as ApiPost } from '@/lib/api/posts';
+
+// 백엔드 Post를 프론트엔드 Post로 변환하는 함수
+function transformApiPost(apiPost: ApiPost, index: number) {
+  return {
+    id: apiPost.id,
+    title: apiPost.title,
+    content: apiPost.content,
+    author: apiPost.author,
+    authorId: apiPost.authorId?.toString() || 'unknown',
+    category: '자유', // 기본 카테고리 (백엔드에 카테고리 필드가 없으므로)
+    views: index * 10 + 100, // 임시 조회수
+    comments: Math.floor(Math.random() * 50), // 임시 댓글수
+    likes: Math.floor(Math.random() * 100), // 임시 좋아요수
+    date: new Date(apiPost.createdAt).toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    isHot: false,
+    tags: [],
+    createdAt: new Date(apiPost.createdAt),
+    updatedAt: new Date(apiPost.updatedAt),
+  };
+}
 
 export default function PostsPage() {
   const [sortBy, setSortBy] = useState<SortBy>('latest');
   const [selectedCategory, setSelectedCategory] = useState<Category>('전체');
+  const [posts, setPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // API에서 게시글 목록 가져오기
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const apiPosts = await getPosts();
+        const transformedPosts = apiPosts.map((post, index) => transformApiPost(post, index));
+        setPosts(transformedPosts);
+      } catch (err) {
+        console.error('게시글 목록 로드 실패:', err);
+        setError('게시글을 불러오는데 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+        // 에러 시 목업 데이터 사용
+        setPosts(mockPosts);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, []);
 
   // 카테고리별 필터링
   const filteredPosts =
     selectedCategory === '전체'
-      ? mockPosts
-      : mockPosts.filter((post) => post.category === selectedCategory);
+      ? posts
+      : posts.filter((post) => post.category === selectedCategory);
 
   // 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
@@ -52,11 +104,18 @@ export default function PostsPage() {
               />
             </div>
 
+            {error && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-yellow-800 text-sm">{error}</p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">총</span>
                 <span className="font-semibold">{sortedPosts.length}</span>
                 <span className="text-gray-600">개의 게시글</span>
+                {isLoading && <span className="text-sm text-gray-500">(로딩 중...)</span>}
               </div>
 
               <div className="flex items-center gap-3">

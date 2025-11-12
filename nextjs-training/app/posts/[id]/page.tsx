@@ -1,13 +1,17 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Header } from '@/components/forum/Header';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
+import { 
+  Button,
+  Card,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Separator,
+  Textarea
+} from '@/components/ui';
 import {
   ArrowLeft,
   Eye,
@@ -19,6 +23,7 @@ import {
 import Link from 'next/link';
 import { mockPosts, mockComments } from '@/lib/mock-data';
 import { motion } from 'framer-motion';
+import { getPost } from '@/lib/api/posts';
 
 export default function PostDetailPage({
   params,
@@ -26,8 +31,68 @@ export default function PostDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const post = mockPosts.find((p) => p.id === parseInt(id));
+  const [post, setPost] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const comments = mockComments.filter((c) => c.postId === parseInt(id));
+
+  // API에서 게시글 상세 정보 가져오기
+  useEffect(() => {
+    async function fetchPost() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const apiPost = await getPost(parseInt(id));
+        
+        // API 응답을 프론트엔드 형식으로 변환
+        const transformedPost = {
+          id: apiPost.id,
+          title: apiPost.title,
+          content: apiPost.content,
+          author: apiPost.author,
+          authorId: apiPost.authorId?.toString() || 'unknown',
+          category: '자유',
+          views: 0,
+          comments: 0,
+          likes: 0,
+          date: new Date(apiPost.createdAt).toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          isHot: false,
+          tags: [],
+        };
+        
+        setPost(transformedPost);
+      } catch (err) {
+        console.error('게시글 조회 실패:', err);
+        setError('게시글을 불러오는데 실패했습니다.');
+        // 에러 시 목업 데이터 사용
+        const mockPost = mockPosts.find((p) => p.id === parseInt(id));
+        setPost(mockPost || null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPost();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-lg">게시글을 불러오는 중...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -36,6 +101,7 @@ export default function PostDetailPage({
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">게시글을 찾을 수 없습니다</h1>
+            {error && <p className="text-red-600 mb-4">{error}</p>}
             <Link href="/posts">
               <Button>목록으로 돌아가기</Button>
             </Link>
@@ -109,7 +175,7 @@ export default function PostDetailPage({
 
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6 pb-6 border-b">
-                  {post.tags.map((tag, index) => (
+                  {post.tags.map((tag: string, index: number) => (
                     <Badge key={index} variant="outline">
                       #{tag}
                     </Badge>

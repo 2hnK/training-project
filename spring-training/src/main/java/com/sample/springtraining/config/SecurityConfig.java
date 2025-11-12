@@ -26,14 +26,16 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                http.authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
-                                .requestMatchers("/webjars/**", "/images/**", "/css/**", "/js/**").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers("/api/**").authenticated()
-                                .anyRequest().authenticated())
+                http.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 적용
+                                .authorizeHttpRequests(authorize -> authorize
+                                                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                                                .requestMatchers("/webjars/**", "/images/**", "/css/**", "/js/**").permitAll()
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/posts/**").permitAll() // 개발 중: Post API 전체 공개
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "USER")
+                                                .requestMatchers("/api/**").authenticated()
+                                                .anyRequest().authenticated())
                                 .exceptionHandling(exception -> exception
                                                 .accessDeniedHandler(customAccessDeniedHandler))
                                 .formLogin(form -> form
@@ -43,7 +45,7 @@ public class SecurityConfig {
                                                 .logoutSuccessUrl("/")
                                                 .permitAll())
                                 .csrf(csrf -> csrf
-                                                .ignoringRequestMatchers("/h2-console/**"))
+                                                .ignoringRequestMatchers("/h2-console/**", "/api/posts/**")) // CSRF 비활성화
                                 .headers(headers -> headers
                                                 .frameOptions(frame -> frame.sameOrigin()));
 

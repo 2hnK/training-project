@@ -2,23 +2,24 @@
 
 import { useState } from 'react';
 import { Header } from '@/components/forum/Header';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
+import { 
+  Button,
+  Card,
+  Input,
+  Textarea,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+  Badge
+} from '@/components/ui';
 import { ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { createPost } from '@/lib/api/posts';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -27,6 +28,8 @@ export default function NewPostPage() {
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -39,20 +42,32 @@ export default function NewPostPage() {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: API 연동 시 실제 제출 로직 구현
-    console.log({
-      title,
-      content,
-      category,
-      tags,
-    });
+    if (isSubmitting) return;
 
-    // 임시로 목록 페이지로 이동
-    alert('게시글이 작성되었습니다! (목업 모드)');
-    router.push('/posts');
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      // 백엔드 API 호출
+      const newPost = await createPost({
+        title,
+        content,
+      });
+
+      console.log('게시글 생성 성공:', newPost);
+      alert('게시글이 작성되었습니다!');
+      router.push('/posts');
+    } catch (err) {
+      console.error('게시글 생성 실패:', err);
+      const errorMessage = err instanceof Error ? err.message : '게시글 작성에 실패했습니다.';
+      setError(errorMessage);
+      alert(errorMessage + '\n백엔드 서버가 실행 중인지, 로그인 상태인지 확인해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,6 +90,12 @@ export default function NewPostPage() {
           >
             <Card className="p-8">
               <h1 className="text-3xl font-bold mb-8">새 게시글 작성</h1>
+
+              {error && (
+                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm">{error}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
@@ -167,12 +188,15 @@ export default function NewPostPage() {
 
                 <div className="flex justify-end gap-3 pt-6">
                   <Link href="/posts">
-                    <Button type="button" variant="outline">
+                    <Button type="button" variant="outline" disabled={isSubmitting}>
                       취소
                     </Button>
                   </Link>
-                  <Button type="submit" disabled={!title || !content || !category}>
-                    게시글 작성
+                  <Button 
+                    type="submit" 
+                    disabled={!title || !content || isSubmitting}
+                  >
+                    {isSubmitting ? '작성 중...' : '게시글 작성'}
                   </Button>
                 </div>
               </form>

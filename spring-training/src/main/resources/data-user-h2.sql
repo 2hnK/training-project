@@ -1,5 +1,7 @@
 INSERT INTO MEMBERS (login_id, nickname, email, password, verified, locked, ACC_CRED_EXPIRED, created_at, updated_at) VALUES
-('김지훈', '지훈', 'kimgh921@gmail.com', 'qwer1234', true, false, false, '2025-09-29 11:54:14', '2025-09-29 11:54:14'),
+('admin', '관리자', 'admin@test.com', 'admin1234', true, false, false, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+('user', '일반사용자', 'user@test.com', 'user1234', true, false, false, '2025-01-02 00:00:00', '2025-01-02 00:00:00'),
+('kimjihoon', '김지훈', 'kimgh921@gmail.com', 'qwer1234', true, false, false, '2025-09-29 11:54:14', '2025-09-29 11:54:14'),
 ('김민준', '민준', 'minjun.kim@test.com', 'pass123', true, false, false, '2025-07-15 10:25:14', '2025-07-15 10:25:14'),
 ('이서연', '서연', 's_yeon.lee@test.com', 'love9876', true, false, false, '2025-07-18 14:05:52', '2025-07-18 14:05:52'),
 ('박도윤', '도윤', 'doyoon.park@test.com', 'park_dy22', true, false, false, '2025-07-22 09:11:03', '2025-07-22 09:11:03'),
